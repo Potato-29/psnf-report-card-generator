@@ -30,6 +30,7 @@ const ReportCardForm = () => {
       return acc;
     }, {}),
   });
+  const [loading, setLoading] = useState(false); // New loading state
 
   const handleChange = (e, subject) => {
     setFormData({
@@ -51,6 +52,7 @@ const ReportCardForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true when form is submitted
     const response = await fetch("/api/generate-report", {
       method: "POST",
       body: JSON.stringify(formData),
@@ -64,83 +66,86 @@ const ReportCardForm = () => {
     link.href = URL.createObjectURL(blob);
     link.download = `${formData.name}_ReportCard.pdf`;
     link.click();
+    setLoading(false); // Set loading to false after response is received
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 max-w-lg mx-auto">
-      <div>
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700"
+    <div className="space-y-4 p-4 max-w-lg mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-4 p-4 max-w-lg mx-auto">
+        <div>
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Student Name
+          </label>
+          <input
+            id="name"
+            type="text"
+            value={formData.name}
+            onChange={handleInputChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+            required
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="className"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Class
+          </label>
+          <input
+            id="className"
+            type="text"
+            value={formData.className}
+            onChange={handleInputChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+            required
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="comments"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Comments
+          </label>
+          <textarea
+            id="comments"
+            value={formData.comments}
+            onChange={handleInputChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+          />
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold">Grades</h3>
+          {subjects.map((subject) => (
+            <div key={subject} className="mt-2">
+              <label className="block text-sm font-medium text-gray-700">
+                {subject}
+              </label>
+              <input
+                type="text"
+                value={formData.grades[subject]}
+                onChange={(e) => handleChange(e, subject)}
+                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+              />
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="submit"
+          className="mt-4 bg-blue-500 text-white p-2 rounded-md w-full"
         >
-          Student Name
-        </label>
-        <input
-          id="name"
-          type="text"
-          value={formData.name}
-          onChange={handleInputChange}
-          className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-          required
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="className"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Class
-        </label>
-        <input
-          id="className"
-          type="text"
-          value={formData.className}
-          onChange={handleInputChange}
-          className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-          required
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="comments"
-          className="block text-sm font-medium text-gray-700"
-        >
-          Comments
-        </label>
-        <textarea
-          id="comments"
-          value={formData.comments}
-          onChange={handleInputChange}
-          className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-        />
-      </div>
-
-      <div>
-        <h3 className="text-lg font-semibold">Grades</h3>
-        {subjects.map((subject) => (
-          <div key={subject} className="mt-2">
-            <label className="block text-sm font-medium text-gray-700">
-              {subject}
-            </label>
-            <input
-              type="text"
-              value={formData.grades[subject]}
-              onChange={(e) => handleChange(e, subject)}
-              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-            />
-          </div>
-        ))}
-      </div>
-
-      <button
-        type="submit"
-        className="mt-4 bg-blue-500 text-white p-2 rounded-md w-full"
-      >
-        Generate Report Card
-      </button>
-    </form>
+          {loading ? "Loading..." : "Generate Report Card"}
+        </button>
+      </form>
+    </div>
   );
 };
 
